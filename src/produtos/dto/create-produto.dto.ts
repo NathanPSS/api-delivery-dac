@@ -12,5 +12,8 @@ export class CreateProdutoDto {
     imagem: string
 
     @IsString()
+    categoria: string
+
+    @IsString()
     descricao: string
 }

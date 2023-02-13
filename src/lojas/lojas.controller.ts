@@ -1,35 +1,48 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { LojasService } from './lojas.service';
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
+import { Request as ExpressRequest } from 'express';
+import { JwtGuardService } from '../auth/app-jwt/guards/jwt-guard/jwt-guard.service';
+import { AuthJwtService } from '../auth/app-jwt/auth-jwt/auth-jwt.service';
 
-@Controller('/user/:idUser/lojas')
+@Controller('/user/lojas')
 export class LojasController {
-  constructor(private readonly lojasService: LojasService) {}
-
+  constructor(
+    private readonly lojasService: LojasService,
+    private readonly jwt :AuthJwtService
+    ) {}
+ 
+  @UseGuards(JwtGuardService)
   @Post()
-  create(@Body() createLojaDto: CreateLojaDto,@Param('idUser') id: string) {
-    console.log(id)
-    return this.lojasService.create(createLojaDto,+id);
+ async create(@Body() createLojaDto: CreateLojaDto,@Request() req:ExpressRequest) {
+    const user :any= await this.jwt.decode(req.headers.authorization)
+    return await this.lojasService.create(createLojaDto,user.username);
   }
 
-  @Get()
-  findAll() {
-    return this.lojasService.findAll();
+  @UseGuards(JwtGuardService)
+  @Get('/all')
+  async findAll(@Request() req:ExpressRequest) {
+    const user :any= await this.jwt.decode(req.headers.authorization)
+    return await this.lojasService.findAllUser(user.username)
   }
 
+  @UseGuards(JwtGuardService)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.lojasService.findOne(+id);
+  async findOne(@Param('id') id:string) {
+    return await this.lojasService.findOne(+id)
   }
-
+  
+  @UseGuards(JwtGuardService)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLojaDto: UpdateLojaDto) {
-    return this.lojasService.update(+id, updateLojaDto);
+  async update(@Request() req:ExpressRequest, @Body() updateLojaDto: UpdateLojaDto) {
+    const user :any= await this.jwt.decode(req.headers.authorization)
+    return this.lojasService.update(user.username, updateLojaDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.lojasService.remove(+id);
+ async remove(@Request() req:ExpressRequest) {
+    const user :any= await this.jwt.decode(req.headers.authorization)
+    return this.lojasService.remove(user.username);
   }
 }

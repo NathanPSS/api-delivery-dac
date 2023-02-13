@@ -1,5 +1,7 @@
-import { Lojas } from "src/lojas/model/lojas.entity";
+import { Lojas } from "../../lojas/model/lojas.entity";
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Pedido } from "../../pedidos/model/pedidos.entity";
+
 
 @Entity()
 export class Users {
@@ -24,4 +26,15 @@ export class Users {
 
     @OneToMany(type => Lojas, lojas => lojas.idDono,{nullable:false,createForeignKeyConstraints:true})
     lojas: Lojas[]
+
+
+    @OneToMany(type => Pedido, pedido => pedido.idUser,{nullable:false,createForeignKeyConstraints:true})
+    pedidos: Pedido[]
+
+    serializable(){
+        return {
+            id: this.id,
+            username: this.email
+        }
+    }
 }

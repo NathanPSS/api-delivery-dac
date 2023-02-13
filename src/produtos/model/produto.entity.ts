@@ -1,6 +1,8 @@
-import { Categoria } from "src/categoria/model/categoria.entity";
-import { Lojas } from "src/lojas/model/lojas.entity";
+
+import { Lojas } from "../../lojas/model/lojas.entity"
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Pedido } from "../../pedidos/model/pedidos.entity";
+import { PedidoProduto } from "../../pedidos/model/PedidoProduto.entity";
 
 
 @Entity()
@@ -21,9 +23,11 @@ export class Produto {
     descricao: string
 
     @ManyToOne(type => Lojas, lojas => lojas.id,{createForeignKeyConstraints:true})
-    loja: Lojas
+    loja: number
 
-    @ManyToMany(type => Categoria)
-    @JoinTable()
-    categorias: Categoria[]
+    @ManyToOne(type => PedidoProduto, pedidoproduto => pedidoproduto.idProduto,{createForeignKeyConstraints:true})
+    pedido: PedidoProduto[]
+
+    @Column({type: 'text'})
+    categoria: string
 }

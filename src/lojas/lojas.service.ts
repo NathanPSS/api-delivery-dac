@@ -1,5 +1,7 @@
 import { HttpException, Inject, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { DatabaseExeceptionsModule } from '../database/database-execeptions/database-execeptions.module';
+import { IDatabaseExeptions } from '../database/database-execeptions/IDatabaseExceptions';
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
 import { Lojas } from './model/lojas.entity';
@@ -8,30 +10,23 @@ import { Lojas } from './model/lojas.entity';
 export class LojasService {
   constructor(
     @Inject('LOJAS_REPOSITORY')
-    private repository :Repository<Lojas>
+    private repository :Repository<Lojas>,
+    @Inject('EXCEPTIONS_POSTGREE')
+    private execeptions :IDatabaseExeptions
   ){}
   async create(createLojaDto: CreateLojaDto,id :number) {
 try {
   const loja = {
     cnpj: createLojaDto.cnpj,
     nome: createLojaDto.nome,
-    idDono:id
+    idDono: id
   }
+  console.log(loja)
   return await this.repository.save(loja)
 } catch (error) {
-  if(error.code == 23505){
-    return new HttpException('A loja ja foi cadastrada',403)
-  }
-  if(error.code == 23503){
-    return new HttpException('O usuario não esta Cadastrado',400)
-  }
+ return this.execeptions.checkError(error)
 }
   }
-
-  async findAll() {
-    return await this.repository.find()
-  }
-
  async findOne(id: number) {
     try {
       return await this.repository.findOneByOrFail({id:id})
@@ -46,5 +41,8 @@ try {
 
  async remove(id: number) {
     return await this.repository.delete({id:id})
+  }
+  async findAllUser(id :number){
+    return await this.repository.findBy({idDono:id})
   }
 }

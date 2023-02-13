@@ -1,50 +1,60 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { IDatabaseExeptions } from '../database/database-execeptions/IDatabaseExceptions';
+import { HashDataService } from '../hash/hash-data/hash-data.service';
+import { ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { QueryFailedError, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Users } from './model/user.entity';
 
 @Injectable()
-export class UserService {
+export class UserService{
 
   constructor(
    @Inject('USER_REPOSITORY')
-   private repository: Repository<Users>
+   private repository: Repository<Users>,
+   @Inject('EXCEPTIONS_POSTGREE')
+   private exceptions :IDatabaseExeptions,
+   private hash :HashDataService,
   ){}
 
-  async create(createUserDto: CreateUserDto) {
-    if(await this.repository.exist({where:{email:createUserDto.email}})){
-      return new ForbiddenException()
-      }
-      return await this.repository.save(createUserDto)
+  async create(createUserDto: CreateUserDto){
+    createUserDto.password = await this.hash.hashData(createUserDto.password,10)
+    try { 
+   await this.repository.save(createUserDto)
+} catch (error) {
+  this.exceptions.checkError(error);
+}
   }
 
  async findAll() {
-     return await this.repository.find()
+  try {
+    return await this.repository.find() 
+  } catch (error) {
+    this.exceptions.checkError(error);
+  }
   }
 
- async findOne(id: number) {
+ async findOne(email: string) {
     try {
       return await this.repository.findOneByOrFail({
-        id:id
+        email:email
       })
     } catch (error) {
       return new NotFoundException()
     }
   }
-
- async update(id: number, updateUserDto: UpdateUserDto) {
+ async update(email: string, updateUserDto: UpdateUserDto) {
     try {
-      return await this.repository.update({id:id},updateUserDto);
+      return await this.repository.update({email:email},updateUserDto);
     } catch (error) {
       
     }
   }
 
- async remove(id: number) {
+ async remove(email: string) {
     try {
       return await this.repository.delete({
-        id:id
+        email:email
       })
     } catch (error) {
       

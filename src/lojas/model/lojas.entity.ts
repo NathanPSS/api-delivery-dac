@@ -1,6 +1,7 @@
-import { Produto } from "src/produtos/model/produto.entity";
-import { Users } from "src/user/model/user.entity";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Produto } from "../../produtos/model/produto.entity";
+import { Users } from "../../user/model/user.entity";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Pedido } from "../../pedidos/model/pedidos.entity";
 
 @Entity()
 export class Lojas {
@@ -19,4 +20,7 @@ export class Lojas {
 
     @OneToMany(type => Produto, produto => produto.loja)
     produtos: Produto[]
+
+    @OneToOne((type => Pedido), pedido => pedido.idLojas,{nullable:false,createForeignKeyConstraints:true})
+    pedidos: Pedido[]
 }
