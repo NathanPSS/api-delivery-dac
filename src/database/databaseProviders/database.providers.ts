@@ -8,11 +8,7 @@ export const dataBaseProviders :Array<Provider>  = [
         useFactory: async () => {
             const dataSource = new DataSource({
                  type: "postgres",
-                 host: process.env.DATABASE_HOST,
-                 port: parseInt(process.env.DATABASE_PORT,10),
-                 username: process.env.DATABASE_USERNAME,
-                 password: process.env.DATABASE_PASSWORD,
-                 database: process.env.DATABASE_NAME,
+                 url: process.env.DATABASE_URL_PRODUTION,
                  entities: [
                     __dirname + '/../../**/*.entity{.ts,.js}',
                 ],
@@ -25,8 +21,12 @@ export const dataBaseProviders :Array<Provider>  = [
         provide: 'DATA_SOURCE_TEST',
         useFactory: async () => {
             const dataSourceTest = new DataSource({
-                type:'postgres',
-                url: process.env.DATABASE_URL_PRODUTION,
+                type: "postgres",
+                host: process.env.DATABASE_TEST_HOST,
+                port: parseInt(process.env.DATABASE_TEST_PORT,10),
+                username: process.env.DATABASE_TEST_USERNAME,
+                password: process.env.DATABASE_TEST_PASSWORD,
+                database: process.env.DATABASE_TEST_NAME,
                 entities: [
                    __dirname + '/../../**/*.entity{.ts,.js}',
                ],
