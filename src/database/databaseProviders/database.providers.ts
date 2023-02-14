@@ -22,11 +22,7 @@ export const dataBaseProviders :Array<Provider>  = [
         useFactory: async () => {
             const dataSourceTest = new DataSource({
                 type: "postgres",
-                host: process.env.DATABASE_TEST_HOST,
-                port: parseInt(process.env.DATABASE_TEST_PORT,10),
-                username: process.env.DATABASE_TEST_USERNAME,
-                password: process.env.DATABASE_TEST_PASSWORD,
-                database: process.env.DATABASE_TEST_NAME,
+                url: process.env.DATABASE_URL_PRODUTION,
                 entities: [
                    __dirname + '/../../**/*.entity{.ts,.js}',
                ],
